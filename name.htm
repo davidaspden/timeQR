@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clock In</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <label for="nameInput">Enter your name:</label>
+        <input type="text" id="nameInput" name="nameInput" autocomplete="off">
+        <button id="clockInBtn">Clock In</button>
+        <div id="message"></div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Example: read a cookie named "name"
+        const nameCookie = getCookie('name');
+        console.log('Name cookie:', nameCookie);
+        document.getElementById("message").textContent = `Welcome back, ${nameCookie}!`;
+
+        document.getElementById("clockInBtn").addEventListener("click", () => {
+            const name = document.getElementById("nameInput").value;
+            if (name) {
+                document.cookie = `name=${name}; path=/; max-age=31536000`; // 1 year
+                document.getElementById("message").textContent = `Hello, ${name}! You are clocked in.`;
+                const time = new Date().toISOString();
+                fetch('/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "name": name, "time": time })
+                });
+                document.getElementById("clockInBtn").disabled = true;
+            } else {
+                document.getElementById("message").textContent = "Please enter your name.";
+            }
+        });
+    </script>
+</body>
+</html>

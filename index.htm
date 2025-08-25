@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Code QR System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1 id="mainTitle">Welcome to TimeQR</h1>
+    <div id="container">
+        <div id="instruction">
+            <h2>Scan the QR Code To Get Your Station</h2>
+        </div>
+        <div id="QRCode"></div>
+        <div id="count"></div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="public/qrcode.min.js"></script>
+    <script>
+        setInterval(() => {
+            document.getElementById("QRCode").innerHTML = "";
+            new QRCode(document.getElementById("QRCode"), {
+                text: window.location.host + "/track?t=" + base36Time(),
+                width: 512,
+                height: 512
+            })
+        }, 5000);
+        setInterval(() => {
+            fetch('/rosta')
+                .then(response => response.json())
+                .then(data => {
+                    const countDiv = document.getElementById('count');
+                    let html = '<table style="width:100%;text-align:left;"><tbody>';
+                    let staffCount = 0;
+                    data.forEach(row => {
+                        html += `<tr><td>${row.name}</td><td>${row.station}</td></tr>`;
+                        staffCount++;
+                    });
+                    html += `</tbody></table><div style="margin-top:10px;font-weight:bold;">Staff Count: ${staffCount}</div>`;
+                    countDiv.innerHTML = html;
+                })
+                .catch(() => {
+                    document.getElementById('count').innerHTML = 'Failed to load staff list.';
+                });
+        }, 5000);
+    </script>
+    <footer>Scan the QR Code for Station Allocation</footer>
+</body>
+
+</html>
